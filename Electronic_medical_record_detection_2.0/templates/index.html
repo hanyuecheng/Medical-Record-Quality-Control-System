@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="px-4 py-5 my-5 text-center">
+    <h1 class="display-5 fw-bold">电子病案首页质控系统</h1>
+    <div class="col-lg-8 mx-auto">
+        <p class="lead mb-4">
+            本系统可以帮助您进行病案首页质控检查，包括缺项检查和逻辑检查等多种规则。
+            您可以自定义检查规则，并对导入的病案首页数据进行质量控制检查。
+            同时提供医疗记录文本转Excel、数据库数据转Excel和医学文本实体识别等功能。
+        </p>
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+            <a href="/rules" class="btn btn-primary btn-lg px-4 gap-3">管理检查规则</a>
+            <a href="/check" class="btn btn-outline-secondary btn-lg px-4">开始数据检查</a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title">规则管理</h5>
+            </div>
+            <div class="card-body">
+                <p>在规则管理页面，您可以：</p>
+                <ul>
+                    <li>添加新的检查规则</li>
+                    <li>修改现有的规则</li>
+                    <li>删除不需要的规则</li>
+                </ul>
+                <a href="/rules" class="btn btn-primary">管理规则</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title">数据检查</h5>
+            </div>
+            <div class="card-body">
+                <p>在数据检查页面，您可以：</p>
+                <ul>
+                    <li>上传Excel格式的病案首页数据</li>
+                    <li>使用已设置的规则进行检查</li>
+                    <li>查看检查结果并导出报告</li>
+                </ul>
+                <a href="/check" class="btn btn-primary">开始检查</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title">文本转Excel</h5>
+            </div>
+            <div class="card-body">
+                <p>在文本转Excel页面，您可以：</p>
+                <ul>
+                    <li>输入医疗记录文本</li>
+                    <li>自动解析结构化数据</li>
+                    <li>生成标准格式Excel文件</li>
+                </ul>
+                <a href="/text_to_excel" class="btn btn-primary">转换文本</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title">数据库转Excel</h5>
+            </div>
+            <div class="card-body">
+                <p>在数据库转Excel页面，您可以：</p>
+                <ul>
+                    <li>配置数据库连接信息</li>
+                    <li>导出病案首页数据</li>
+                    <li>导出患者信息和住院记录</li>
+                </ul>
+                <a href="/db_to_excel" class="btn btn-primary">导出数据库</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title">实体识别</h5>
+            </div>
+            <div class="card-body">
+                <p>在医学文本实体识别页面，您可以：</p>
+                <ul>
+                    <li>识别医学文本中的实体</li>
+                    <li>管理医学实体字典</li>
+                    <li>查看高亮显示的识别结果</li>
+                </ul>
+                <a href="/entity_recognition" class="btn btn-primary">识别实体</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

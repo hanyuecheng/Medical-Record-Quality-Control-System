@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">实体识别结果</h5>
+                <a href="/entity_recognition" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-left"></i> 返回
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-success">
+                    {% set total_entities = namespace(count=0) %}
+                    {% for entity_type, entities in recognized_entities.items() %}
+                        {% set total_entities.count = total_entities.count + entities|length %}
+                    {% endfor %}
+                    <p>成功识别 {{ total_entities.count }} 个医学实体</p>
+                </div>
+                
+                <h5>高亮显示的文本</h5>
+                <div class="border rounded p-3 mb-4 bg-light">
+                    {{ highlighted_text | safe }}
+                </div>
+                
+                <h5>识别到的实体</h5>
+                <div class="row mb-3">
+                    {% for entity_type, entities in recognized_entities.items() %}
+                    <div class="col-md-12 mb-3">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">{{ entity_type }} ({{ entities|length }})</h6>
+                            </div>
+                            <div class="card-body p-0">
+                                <table class="table table-striped mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>实体</th>
+                                            <th>上下文</th>
+                                            <th>位置</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for entity_info in entities %}
+                                        <tr>
+                                            <td>
+                                                <span class="entity-highlight {{ entity_type.lower() }}">{{ entity_info.entity }}</span>
+                                            </td>
+                                            <td>...{{ entity_info.context }}...</td>
+                                            <td>{{ entity_info.position }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <h5>原始文本</h5>
+                <div class="border rounded p-3 bg-light">
+                    <pre>{{ original_text }}</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+.entity-highlight {
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-weight: bold;
+}
+.疾病, .disease {
+    background-color: #ffcccc;
+    border: 1px solid #ff9999;
+}
+.症状, .symptom {
+    background-color: #ffffcc;
+    border: 1px solid #ffff99;
+}
+.检查, .examination {
+    background-color: #ccffcc;
+    border: 1px solid #99ff99;
+}
+.治疗, .treatment {
+    background-color: #ccccff;
+    border: 1px solid #9999ff;
+}
+.药物, .medicine {
+    background-color: #ffccff;
+    border: 1px solid #ff99ff;
+}
+</style>
+{% endblock %} 

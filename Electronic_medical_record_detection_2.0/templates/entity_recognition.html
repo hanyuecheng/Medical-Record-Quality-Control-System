@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">医学文本实体识别</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <p>请输入医学文本，系统将自动识别其中的医学实体（疾病、症状、检查、治疗、药物等）。</p>
+                </div>
+                
+                <form action="/recognize_entities" method="post">
+                    <div class="mb-3">
+                        <label for="text" class="form-label">医学文本</label>
+                        <textarea class="form-control" id="text" name="text" rows="10" required></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">识别实体</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">医学实体字典</h5>
+                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addEntityModal">
+                    添加实体
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="entitiesAccordion">
+                    {% for entity_type, entities in entities.items() %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading{{ entity_type }}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ entity_type }}" aria-expanded="false" aria-controls="collapse{{ entity_type }}">
+                                {{ entity_type }} ({{ entities|length }})
+                            </button>
+                        </h2>
+                        <div id="collapse{{ entity_type }}" class="accordion-collapse collapse" aria-labelledby="heading{{ entity_type }}" data-bs-parent="#entitiesAccordion">
+                            <div class="accordion-body">
+                                <div class="row">
+                                    {% for entity in entities %}
+                                    <div class="col-md-4 mb-2">
+                                        <div class="d-flex justify-content-between align-items-center border rounded p-2">
+                                            <span>{{ entity }}</span>
+                                            <form action="/delete_entity" method="post" class="d-inline">
+                                                <input type="hidden" name="entity_type" value="{{ entity_type }}">
+                                                <input type="hidden" name="entity_name" value="{{ entity }}">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('确定要删除实体 {{ entity }} 吗？')">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 添加实体模态框 -->
+<div class="modal fade" id="addEntityModal" tabindex="-1" aria-labelledby="addEntityModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addEntityModalLabel">添加医学实体</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/add_entity" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="entity_type" class="form-label">实体类型</label>
+                        <input type="text" class="form-control" id="entity_type" name="entity_type" list="entity_types" required>
+                        <datalist id="entity_types">
+                            {% for entity_type in entities.keys() %}
+                            <option value="{{ entity_type }}">
+                            {% endfor %}
+                        </datalist>
+                        <div class="form-text">可以选择现有类型或输入新类型</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="entity_name" class="form-label">实体名称</label>
+                        <input type="text" class="form-control" id="entity_name" name="entity_name" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">添加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+.entity-highlight {
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-weight: bold;
+}
+.疾病, .disease {
+    background-color: #ffcccc;
+    border: 1px solid #ff9999;
+}
+.症状, .symptom {
+    background-color: #ffffcc;
+    border: 1px solid #ffff99;
+}
+.检查, .examination {
+    background-color: #ccffcc;
+    border: 1px solid #99ff99;
+}
+.治疗, .treatment {
+    background-color: #ccccff;
+    border: 1px solid #9999ff;
+}
+.药物, .medicine {
+    background-color: #ffccff;
+    border: 1px solid #ff99ff;
+}
+</style>
+{% endblock %} 

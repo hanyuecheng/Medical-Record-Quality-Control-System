@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">医疗记录文本转Excel</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <p>请输入医疗记录文本，系统将自动解析并转换为Excel文件。</p>
+                    <p>支持多种格式：每行一个字段、分号分隔字段、混合格式。</p>
+                    <p>示例格式：</p>
+                    <pre class="bg-light p-2">住院号：711412
+姓名：王洋
+性别：未知
+年龄：25
+入院日期：2023-03-10 00:00:00
+出院日期：2023-05-19 00:00:00
+住院天数：5
+科室：妇产科
+主治医师：周医生
+主要诊断：肺癌</pre>
+                    <p>或者：</p>
+                    <pre class="bg-light p-2">住院号：764126；姓名：郑磊；性别：未知；年龄：95；入院日期：2023-02-21 00:00:00；出院日期：2023-03-12 00:00:00；住院天数：26；科室：肿瘤科；主治医师：王医生；主要诊断：支气管哮喘；</pre>
+                </div>
+                
+                <form action="/process_text" method="post">
+                    <div class="mb-3">
+                        <label for="text" class="form-label">医疗记录文本</label>
+                        <textarea class="form-control" id="text" name="text" rows="10" required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">文本格式</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="format_type" id="format_auto" value="auto" checked>
+                            <label class="form-check-label" for="format_auto">
+                                自动检测
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="format_type" id="format_line" value="line">
+                            <label class="form-check-label" for="format_line">
+                                每行一个字段
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="format_type" id="format_semicolon" value="semicolon">
+                            <label class="form-check-label" for="format_semicolon">
+                                分号分隔字段
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="simple_columns" name="simple_columns" checked>
+                        <label class="form-check-label" for="simple_columns">使用简化列（仅包含基本字段）</label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">转换为Excel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
