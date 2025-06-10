@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">大模型命名实体识别</h5>
+            </div>
+            <div class="card-body">
+                {% if not transformer_available %}
+                <div class="alert alert-warning">
+                    <h5><i class="bi bi-exclamation-triangle"></i> 缺少依赖库</h5>
+                    <p>系统检测到未安装Transformer相关依赖库，Transformer模型功能将不可用。</p>
+                    <p>请安装以下依赖库：</p>
+                    <pre>pip install transformers torch</pre>
+                    <p>安装完成后，重启应用程序即可使用此功能。</p>
+                </div>
+                {% endif %}
+                
+                {% if llm_config.offline_mode %}
+                <div class="alert alert-info">
+                    <h5><i class="bi bi-info-circle"></i> 离线模式已启用</h5>
+                    <p>系统当前处于离线模式，将使用规则匹配代替在线模型进行医学实体识别。</p>
+                    <p>可以在配置中关闭离线模式以使用在线模型。</p>
+                </div>
+                {% endif %}
+                
+                <div class="alert alert-info">
+                    <p>请输入文本，系统将使用通用领域大模型自动识别其中的命名实体（疾病、症状、身体部位等）。</p>
+                    <p>医学文本示例：<button class="btn btn-sm btn-outline-primary" id="fillExampleBtn">填充示例文本</button></p>
+                </div>
+                
+                <form action="/recognize_llm_entities" method="post">
+                    <div class="mb-3">
+                        <label for="text" class="form-label">文本内容</label>
+                        <textarea class="form-control" id="text" name="text" rows="10" required></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" {% if not transformer_available and not llm_config.offline_mode %}disabled{% endif %}>识别实体</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">大模型配置</h5>
+                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#configModal">
+                    修改配置
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>配置项</th>
+                                <th>当前值</th>
+                                <th>说明</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Transformer模型</td>
+                                <td>{{ llm_config.model_name }}</td>
+                                <td>用于命名实体识别的Transformer模型</td>
+                            </tr>
+                            <tr>
+                                <td>使用GPU</td>
+                                <td>{{ "是" if llm_config.use_gpu else "否" }}</td>
+                                <td>是否使用GPU加速（需要CUDA支持）</td>
+                            </tr>
+                            <tr>
+                                <td>离线模式</td>
+                                <td>{{ "是" if llm_config.offline_mode else "否" }}</td>
+                                <td>是否使用离线模式（使用规则匹配替代在线模型）</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h6 class="mt-3">医学实体类型</h6>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm">
+                        <thead>
+                            <tr>
+                                <th>实体类型</th>
+                                <th>说明</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>疾病</td><td>如肺炎、肺不张、糖尿病等疾病名称</td></tr>
+                            <tr><td>症状</td><td>如呼吸不畅、呼吸肌麻痹、头痛等症状描述</td></tr>
+                            <tr><td>身体部位</td><td>如呼吸中枢、肺、心脏等身体器官或部位</td></tr>
+                            <tr><td>治疗</td><td>如手术、治疗方法等治疗相关内容</td></tr>
+                            <tr><td>检查</td><td>如CT、核磁共振等检查方法</td></tr>
+                            <tr><td>药物</td><td>如青霉素、阿莫西林等药物名称</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 配置模态框 -->
+<div class="modal fade" id="configModal" tabindex="-1" aria-labelledby="configModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="configModalLabel">修改大模型配置</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/save_llm_config" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="model_name" class="form-label">Transformer模型</label>
+                        <input type="text" class="form-control" id="model_name" name="model_name" value="{{ llm_config.model_name }}">
+                        <div class="form-text">输入Hugging Face模型名称，如 "shibing624/medical-ner"</div>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="use_gpu" name="use_gpu" {% if llm_config.use_gpu %}checked{% endif %}>
+                        <label class="form-check-label" for="use_gpu">使用GPU（需要CUDA支持）</label>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="offline_mode" name="offline_mode" {% if llm_config.offline_mode %}checked{% endif %}>
+                        <label class="form-check-label" for="offline_mode">离线模式（使用规则匹配替代在线模型）</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">保存配置</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 填充示例文本按钮
+    document.getElementById('fillExampleBtn').addEventListener('click', function() {
+        document.getElementById('text').value = "呼吸肌麻痹和呼吸中枢受累患者因呼吸不畅可并发肺炎、肺不张等。";
+    });
+});
+</script>
+{% endblock %} 

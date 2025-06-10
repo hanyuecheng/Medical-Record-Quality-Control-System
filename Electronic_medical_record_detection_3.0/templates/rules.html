@@ -1,0 +1,439 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">添加新规则</h5>
+            </div>
+            <div class="card-body">
+                <form action="/rules/add" method="post">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">规则名称</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="type" class="form-label">规则类型</label>
+                            <select class="form-select" id="type" name="type" required>
+                                <option value="">请选择</option>
+                                <option value="missing">缺项检查</option>
+                                <option value="logic">逻辑检查</option>
+                                <option value="relation">关联逻辑检查</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- 缺项检查和逻辑检查表单 -->
+                    <div id="standard-form" class="rule-form">
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="field" class="form-label">检查字段</label>
+                                <input type="text" class="form-control" id="field" name="field">
+                                <div class="form-text">输入病案首页中的字段名称</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="condition" class="form-label">条件</label>
+                                <select class="form-select" id="condition" name="condition">
+                                    <option value="">请选择</option>
+                                    <optgroup label="缺项检查">
+                                        <option value="equals">是否为空</option>
+                                        <option value="not_equals">是否非空</option>
+                                    </optgroup>
+                                    <optgroup label="逻辑检查">
+                                        <option value="equals">等于</option>
+                                        <option value="not_equals">不等于</option>
+                                        <option value="greater_than">大于</option>
+                                        <option value="less_than">小于</option>
+                                        <option value="contains">包含</option>
+                                        <option value="not_contains">不包含</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="value" class="form-label">比较值</label>
+                                <input type="text" class="form-control" id="value" name="value">
+                                <div class="form-text">缺项检查可不填</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 关联逻辑检查表单 -->
+                    <div id="relation-form" class="rule-form d-none">
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="field1" class="form-label">字段1</label>
+                                <input type="text" class="form-control" id="field1" name="field1">
+                                <div class="form-text">例如：性别</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="field2" class="form-label">字段2</label>
+                                <input type="text" class="form-control" id="field2" name="field2">
+                                <div class="form-text">例如：科室</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="relation" class="form-label">关系</label>
+                                <select class="form-select" id="relation" name="relation">
+                                    <option value="match">必须匹配</option>
+                                    <option value="not_match">不能匹配</option>
+                                </select>
+                                <div class="form-text">选择字段间的关系类型</div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="value_pairs" class="form-label">值对应关系</label>
+                            <textarea class="form-control" id="value_pairs" name="value_pairs" rows="4"></textarea>
+                            <div class="form-text">
+                                每行一个对应关系，格式为"值1=值2"。例如：<br>
+                                男=外科,骨科,神经科<br>
+                                女=妇产科<br>
+                                （表示男性对应外科、骨科或神经科，女性对应妇产科）
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="message" class="form-label">错误提示信息</label>
+                        <input type="text" class="form-control" id="message" name="message" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">添加规则</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">规则列表</h5>
+            </div>
+            <div class="card-body">
+                {% if rules %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>规则名称</th>
+                                <th>规则类型</th>
+                                <th>检查内容</th>
+                                <th>错误提示</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rule in rules %}
+                            <tr>
+                                <td>{{ rule.name }}</td>
+                                <td>
+                                    {% if rule.type == 'missing' %}缺项检查
+                                    {% elif rule.type == 'logic' %}逻辑检查
+                                    {% elif rule.type == 'relation' %}关联逻辑检查
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if rule.type == 'missing' or rule.type == 'logic' %}
+                                        字段：{{ rule.field }}<br>
+                                        条件：
+                                        {% if rule.condition == 'equals' %}
+                                            {% if rule.type == 'missing' %}是否为空{% else %}等于{% endif %}
+                                        {% elif rule.condition == 'not_equals' %}
+                                            {% if rule.type == 'missing' %}是否非空{% else %}不等于{% endif %}
+                                        {% elif rule.condition == 'greater_than' %}大于
+                                        {% elif rule.condition == 'less_than' %}小于
+                                        {% elif rule.condition == 'contains' %}包含
+                                        {% elif rule.condition == 'not_contains' %}不包含
+                                        {% endif %}
+                                        {% if rule.value %}
+                                        <br>值：{{ rule.value }}
+                                        {% endif %}
+                                    {% elif rule.type == 'relation' %}
+                                        字段1：{{ rule.field1 }}<br>
+                                        字段2：{{ rule.field2 }}<br>
+                                        关系：{% if rule.relation == 'match' %}必须匹配{% else %}不能匹配{% endif %}<br>
+                                        值对应：<br>
+                                        <small>{{ rule.value_pairs|replace('\n', '<br>')|safe }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>{{ rule.message }}</td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-primary edit-rule" 
+                                            data-id="{{ rule.id }}"
+                                            data-name="{{ rule.name }}"
+                                            data-type="{{ rule.type }}"
+                                            {% if rule.type == 'missing' or rule.type == 'logic' %}
+                                            data-field="{{ rule.field }}"
+                                            data-condition="{{ rule.condition }}"
+                                            data-value="{{ rule.value }}"
+                                            {% elif rule.type == 'relation' %}
+                                            data-field1="{{ rule.field1 }}"
+                                            data-field2="{{ rule.field2 }}"
+                                            data-relation="{{ rule.relation }}"
+                                            data-value-pairs="{{ rule.value_pairs }}"
+                                            {% endif %}
+                                            data-message="{{ rule.message }}"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#editRuleModal">
+                                        编辑
+                                    </button>
+                                    <a href="/rules/delete/{{ rule.id }}" class="btn btn-sm btn-danger" 
+                                       onclick="return confirm('确定要删除这条规则吗？')">删除</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    还没有添加任何规则，请使用上方表单添加规则。
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 编辑规则模态框 -->
+<div class="modal fade" id="editRuleModal" tabindex="-1" aria-labelledby="editRuleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editRuleModalLabel">编辑规则</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editRuleForm" method="post">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="edit-name" class="form-label">规则名称</label>
+                            <input type="text" class="form-control" id="edit-name" name="name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit-type" class="form-label">规则类型</label>
+                            <select class="form-select" id="edit-type" name="type" required>
+                                <option value="missing">缺项检查</option>
+                                <option value="logic">逻辑检查</option>
+                                <option value="relation">关联逻辑检查</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- 编辑：缺项检查和逻辑检查表单 -->
+                    <div id="edit-standard-form" class="edit-rule-form">
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="edit-field" class="form-label">检查字段</label>
+                                <input type="text" class="form-control" id="edit-field" name="field">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="edit-condition" class="form-label">条件</label>
+                                <select class="form-select" id="edit-condition" name="condition">
+                                    <optgroup label="缺项检查" id="edit-missing-group">
+                                        <option value="equals">是否为空</option>
+                                        <option value="not_equals">是否非空</option>
+                                    </optgroup>
+                                    <optgroup label="逻辑检查" id="edit-logic-group">
+                                        <option value="equals">等于</option>
+                                        <option value="not_equals">不等于</option>
+                                        <option value="greater_than">大于</option>
+                                        <option value="less_than">小于</option>
+                                        <option value="contains">包含</option>
+                                        <option value="not_contains">不包含</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="edit-value" class="form-label">比较值</label>
+                                <input type="text" class="form-control" id="edit-value" name="value">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 编辑：关联逻辑检查表单 -->
+                    <div id="edit-relation-form" class="edit-rule-form d-none">
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="edit-field1" class="form-label">字段1</label>
+                                <input type="text" class="form-control" id="edit-field1" name="field1">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="edit-field2" class="form-label">字段2</label>
+                                <input type="text" class="form-control" id="edit-field2" name="field2">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="edit-relation" class="form-label">关系</label>
+                                <select class="form-select" id="edit-relation" name="relation">
+                                    <option value="match">必须匹配</option>
+                                    <option value="not_match">不能匹配</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-value-pairs" class="form-label">值对应关系</label>
+                            <textarea class="form-control" id="edit-value-pairs" name="value_pairs" rows="4"></textarea>
+                            <div class="form-text">
+                                每行一个对应关系，格式为"值1=值2"。例如：<br>
+                                男=外科,骨科,神经科<br>
+                                女=妇产科
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit-message" class="form-label">错误提示信息</label>
+                        <input type="text" class="form-control" id="edit-message" name="message" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="saveRuleBtn">保存修改</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 规则类型变化时切换表单
+        const typeSelect = document.getElementById('type');
+        const standardForm = document.getElementById('standard-form');
+        const relationForm = document.getElementById('relation-form');
+        const conditionSelect = document.getElementById('condition');
+        const valueInput = document.getElementById('value');
+        
+        typeSelect.addEventListener('change', function() {
+            if (this.value === 'relation') {
+                standardForm.classList.add('d-none');
+                relationForm.classList.remove('d-none');
+            } else {
+                standardForm.classList.remove('d-none');
+                relationForm.classList.add('d-none');
+                
+                // 更新条件选项
+                conditionSelect.innerHTML = '';
+                
+                if (this.value === 'missing') {
+                    // 缺项检查条件
+                    const group = document.createElement('optgroup');
+                    group.label = '缺项检查';
+                    
+                    const option1 = document.createElement('option');
+                    option1.value = 'equals';
+                    option1.textContent = '是否为空';
+                    
+                    const option2 = document.createElement('option');
+                    option2.value = 'not_equals';
+                    option2.textContent = '是否非空';
+                    
+                    group.appendChild(option1);
+                    group.appendChild(option2);
+                    conditionSelect.appendChild(group);
+                    
+                    valueInput.disabled = true;
+                    valueInput.value = '';
+                } else if (this.value === 'logic') {
+                    // 逻辑检查条件
+                    const group = document.createElement('optgroup');
+                    group.label = '逻辑检查';
+                    
+                    const options = [
+                        { value: 'equals', text: '等于' },
+                        { value: 'not_equals', text: '不等于' },
+                        { value: 'greater_than', text: '大于' },
+                        { value: 'less_than', text: '小于' },
+                        { value: 'contains', text: '包含' },
+                        { value: 'not_contains', text: '不包含' }
+                    ];
+                    
+                    options.forEach(opt => {
+                        const option = document.createElement('option');
+                        option.value = opt.value;
+                        option.textContent = opt.text;
+                        group.appendChild(option);
+                    });
+                    
+                    conditionSelect.appendChild(group);
+                    valueInput.disabled = false;
+                } else {
+                    valueInput.disabled = true;
+                }
+            }
+        });
+        
+        // 编辑模态框中的规则类型变化事件
+        const editTypeSelect = document.getElementById('edit-type');
+        const editStandardForm = document.getElementById('edit-standard-form');
+        const editRelationForm = document.getElementById('edit-relation-form');
+        
+        editTypeSelect.addEventListener('change', function() {
+            if (this.value === 'relation') {
+                editStandardForm.classList.add('d-none');
+                editRelationForm.classList.remove('d-none');
+            } else {
+                editStandardForm.classList.remove('d-none');
+                editRelationForm.classList.add('d-none');
+                
+                // 根据规则类型禁用或启用比较值输入框
+                const valueInput = document.getElementById('edit-value');
+                if (this.value === 'missing') {
+                    valueInput.disabled = true;
+                    valueInput.value = '';
+                } else {
+                    valueInput.disabled = false;
+                }
+            }
+        });
+        
+        // 编辑按钮点击事件
+        document.querySelectorAll('.edit-rule').forEach(button => {
+            button.addEventListener('click', function() {
+                const ruleId = this.getAttribute('data-id');
+                const ruleName = this.getAttribute('data-name');
+                const ruleType = this.getAttribute('data-type');
+                const ruleMessage = this.getAttribute('data-message');
+                
+                document.getElementById('edit-name').value = ruleName;
+                document.getElementById('edit-type').value = ruleType;
+                document.getElementById('edit-message').value = ruleMessage;
+                
+                // 更新表单提交地址
+                document.getElementById('editRuleForm').action = `/rules/edit/${ruleId}`;
+                
+                // 根据规则类型显示不同的表单
+                if (ruleType === 'relation') {
+                    editStandardForm.classList.add('d-none');
+                    editRelationForm.classList.remove('d-none');
+                    
+                    document.getElementById('edit-field1').value = this.getAttribute('data-field1');
+                    document.getElementById('edit-field2').value = this.getAttribute('data-field2');
+                    document.getElementById('edit-relation').value = this.getAttribute('data-relation');
+                    document.getElementById('edit-value-pairs').value = this.getAttribute('data-value-pairs');
+                } else {
+                    editStandardForm.classList.remove('d-none');
+                    editRelationForm.classList.add('d-none');
+                    
+                    document.getElementById('edit-field').value = this.getAttribute('data-field');
+                    document.getElementById('edit-condition').value = this.getAttribute('data-condition');
+                    document.getElementById('edit-value').value = this.getAttribute('data-value');
+                    
+                    // 根据规则类型禁用或启用比较值输入框
+                    if (ruleType === 'missing') {
+                        document.getElementById('edit-value').disabled = true;
+                    } else {
+                        document.getElementById('edit-value').disabled = false;
+                    }
+                }
+            });
+        });
+        
+        // 保存修改按钮点击事件
+        document.getElementById('saveRuleBtn').addEventListener('click', function() {
+            document.getElementById('editRuleForm').submit();
+        });
+    });
+</script>
+{% endblock %} 

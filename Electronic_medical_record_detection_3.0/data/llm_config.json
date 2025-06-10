@@ -1,0 +1,27 @@
+{
+  "model_name": "dslim/bert-base-NER",
+  "spacy_model": "zh_core_web_sm",
+  "use_gpu": false,
+  "custom_entity_types": {
+    "PER": "人名",
+    "ORG": "组织",
+    "LOC": "位置",
+    "MISC": "其他",
+    "PERSON": "人名",
+    "NORP": "国家/政治/宗教",
+    "FAC": "设施",
+    "GPE": "地理政治实体",
+    "PRODUCT": "产品",
+    "EVENT": "事件",
+    "WORK_OF_ART": "艺术作品",
+    "LAW": "法律",
+    "LANGUAGE": "语言",
+    "DATE": "日期",
+    "TIME": "时间",
+    "PERCENT": "百分比",
+    "MONEY": "货币",
+    "QUANTITY": "数量",
+    "ORDINAL": "序数",
+    "CARDINAL": "基数"
+  }
+}
