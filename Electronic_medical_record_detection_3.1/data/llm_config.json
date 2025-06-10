@@ -1,0 +1,42 @@
+{
+  "model_name": "dslim/bert-base-NER",
+  "spacy_model": "zh_core_web_sm",
+  "use_gpu": true,
+  "offline_mode": false,
+  "local_model_path": "bert-base-NER",
+  "medical_entity_types": {
+    "DISEASE": "疾病",
+    "SYMPTOM": "症状",
+    "BODY": "身体部位",
+    "TREATMENT": "治疗",
+    "TEST": "检查",
+    "DRUG": "药物"
+  },
+  "custom_entity_types": {
+    "PER": "人名",
+    "ORG": "组织",
+    "LOC": "地点",
+    "MISC": "其他",
+    "PERSON": "人名",
+    "NORP": "国家/政治/宗教",
+    "FAC": "设施",
+    "GPE": "地理政治实体",
+    "PRODUCT": "产品",
+    "EVENT": "事件",
+    "WORK_OF_ART": "艺术作品",
+    "LAW": "法律",
+    "LANGUAGE": "语言",
+    "DATE": "日期",
+    "TIME": "时间",
+    "PERCENT": "百分比",
+    "MONEY": "货币",
+    "QUANTITY": "数量",
+    "ORDINAL": "序数",
+    "CARDINAL": "基数"
+  },
+  "api_mode": true,
+  "api_type": "deepseek",
+  "api_key": "sk-c91bb5e569014667824f2f4361cfcab3",
+  "api_url": "https://api.deepseek.com/v1/chat/completions",
+  "chinese_medical_model": "trueto/medbert-kd-chinese"
+}

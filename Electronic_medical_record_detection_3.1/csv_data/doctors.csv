@@ -1,0 +1,6 @@
+﻿doctor_id,doctor_name,gender,title,dept_id,specialty,phone,email,license_number
+1,王医生,男,主任医师,1,心血管疾病,13800000001,wang@hospital.com,MD12345
+2,李医生,男,副主任医师,2,普外科手术,13800000002,li@hospital.com,MD12346
+3,张医生,女,主任医师,3,妇科肿瘤,13800000003,zhang@hospital.com,MD12347
+4,刘医生,女,副主任医师,4,儿童呼吸系统疾病,13800000004,liu@hospital.com,MD12348
+5,陈医生,男,主任医师,5,脑血管疾病,13800000005,chen@hospital.com,MD12349
