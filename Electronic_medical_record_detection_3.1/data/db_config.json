@@ -1,7 +1,0 @@
-{
-  "host": "localhost",
-  "user": "root",
-  "password": "123456",
-  "database": "hospital_emr",
-  "charset": "utf8mb4"
-}

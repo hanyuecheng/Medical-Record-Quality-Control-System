@@ -1,6 +1,0 @@
-﻿record_id,admission_id,patient_id,admission_number,admission_date,discharge_date,dept_id,attending_doctor_id,admission_diagnosis,discharge_diagnosis,operation_name,operation_date,operation_doctor_id,hospitalization_days,total_cost,medicine_cost,examination_cost,treatment_cost,nursing_cost,material_cost,other_cost,payment_method,insurance_number,is_emergency
-1,1,1,ZY202506061000,2025-01-31,2025-02-27,2,3,支气管哮喘,肺炎,,,,27,38924.14,16868.46,9332.98,5910.18,2059.76,3853.89,898.87,自费,,True
-2,2,2,ZY202506061001,2025-02-03,2025-02-20,3,1,肾炎,肾炎,,,,17,22676.06,9695.49,5372.73,4461.42,2003.19,1312.38,-169.15,医保,YB784118,False
-3,3,3,ZY202506061002,2024-09-24,2024-09-29,4,3,脑梗塞,脑梗塞,,,,5,40171.12,15240.92,10559.66,6925.38,3265.87,2113.84,2065.45,商业保险,,True
-4,4,4,ZY202506061003,2024-12-21,2025-01-01,5,4,糖尿病,糖尿病,,,,11,15894.34,5321.88,4673.71,2013.83,1439.39,1022.92,1422.61,商业保险,,False
-5,5,5,ZY202506061004,2024-11-26,2024-12-05,2,2,阑尾炎,阑尾炎,,,,9,23399.68,11254.95,2444.87,2546.68,1470.88,1407.69,4274.61,商业保险,,True
