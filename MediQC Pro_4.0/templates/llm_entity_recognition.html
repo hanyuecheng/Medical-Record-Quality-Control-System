@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}大模型命名实体识别{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <h2>大模型命名实体识别</h2>
+            <p class="lead">使用大型语言模型进行医疗实体识别</p>
+            
+            {% for message in messages %}
+            <div class="alert alert-{{ message.type }}">
+                {{ message.content }}
+            </div>
+            {% endfor %}
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">API模式配置</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('save_llm_config_route') }}" method="post" class="mb-4">
+                        <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" id="api_mode" name="api_mode" 
+                                   {% if llm_config.get('api_mode', False) %}checked{% endif %}>
+                            <label class="form-check-label" for="api_mode">启用API模式</label>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="api_type">API类型</label>
+                            <select class="form-control" id="api_type" name="api_type">
+                                <option value="deepseek" {% if llm_config.get('api_type') == 'deepseek' %}selected{% endif %}>DeepSeek</option>
+                                <option value="douban" {% if llm_config.get('api_type') == 'douban' %}selected{% endif %}>豆包</option>
+                                <option value="custom" {% if llm_config.get('api_type') not in ['deepseek', 'douban'] %}selected{% endif %}>自定义</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="api_key">API密钥</label>
+                            <input type="password" class="form-control" id="api_key" name="api_key" 
+                                   value="{{ llm_config.get('api_key', '') }}" placeholder="请输入API密钥">
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="api_url">API地址</label>
+                            <input type="text" class="form-control" id="api_url" name="api_url" 
+                                   value="{{ llm_config.get('api_url', '') }}" placeholder="例如：https://api.deepseek.com/v1/chat/completions">
+                            <small class="form-text text-muted">请确保输入完整的API路径，包括/v1/chat/completions部分</small>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">保存API配置</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">医学文本实体识别</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('recognize_llm_entities') }}" method="post" enctype="multipart/form-data">
+                        <div class="form-group mb-3">
+                            <label for="text">输入文本</label>
+                            <textarea class="form-control" id="text" name="text" rows="6" placeholder="请输入待分析的医学文本..."></textarea>
+                            <div class="mt-2">
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="fillTestData">填充测试数据</button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="file">或上传文本文件</label>
+                            <input type="file" class="form-control" id="file" name="file">
+                            <small class="form-text text-muted">仅支持.txt文本文件</small>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">识别实体</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 填充测试数据按钮
+    document.getElementById('fillTestData').addEventListener('click', function() {
+        const testText = `患者，男，45岁。因"反复头痛伴恶心3年，加重2天"入院。患者3年前无明显诱因出现头痛，疼痛位于双侧颞部及枕部，呈持续性胀痛，伴有恶心，无呕吐及视物模糊。曾在当地医院就诊，诊断为"偏头痛"，予以药物治疗（具体不详），症状有所缓解。此后患者间断头痛，未予重视。2天前患者头痛加重，伴有恶心、呕吐，遂来我院就诊，门诊以"偏头痛"收入院。
+
+患者既往体健，否认高血压、糖尿病病史，否认药物过敏史。
+
+查体：T 36.5℃，P 76次/分，R 18次/分，BP 135/85mmHg。神志清楚，精神可，查体合作。心肺腹未见明显异常。神经系统检查：脑膜刺激征阴性，双侧瞳孔等大等圆，直径约3mm，对光反射灵敏，眼球运动正常，无眼球震颤。双侧额纹、鼻唇沟对称，伸舌居中。四肢肌力、肌张力正常，腱反射正常，双侧巴宾斯基征阴性。`;
+        
+        document.getElementById('text').value = testText;
+    });
+});
+</script>
+{% endblock %} 

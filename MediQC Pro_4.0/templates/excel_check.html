@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Excel数据检查</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <p>请上传Excel格式的数据文件。系统将根据您设置的规则进行检查。</p>
+                    <p>支持的文件格式：.xlsx, .xls</p>
+                </div>
+                
+                <form action="/upload" method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="file" class="form-label">选择Excel文件</label>
+                        <input class="form-control" type="file" id="file" name="file" accept=".xlsx,.xls" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">上传并检查</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">现有检查规则</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <p>本系统将使用以下规则对上传的Excel数据进行检查。如需修改规则，请前往<a href="/rules">规则管理</a>页面。</p>
+                </div>
+                
+                <div id="rules-container">
+                    <p class="text-center">加载中...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 页面加载时获取规则列表
+    document.addEventListener('DOMContentLoaded', function() {
+        // 获取规则列表的HTML元素
+        const rulesContainer = document.getElementById('rules-container');
+        
+        // 发送AJAX请求获取规则
+        fetch('/rules')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('无法获取规则列表');
+                }
+                return response.text();
+            })
+            .then(html => {
+                // 提取规则表格
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const ruleTable = doc.querySelector('.table-responsive');
+                
+                if (ruleTable) {
+                    rulesContainer.innerHTML = '';
+                    rulesContainer.appendChild(ruleTable.cloneNode(true));
+                    
+                    // 移除操作列
+                    const table = rulesContainer.querySelector('table');
+                    if (table) {
+                        const headers = table.querySelectorAll('th');
+                        const lastHeader = headers[headers.length - 1];
+                        if (lastHeader && lastHeader.textContent.trim() === '操作') {
+                            lastHeader.remove();
+                        }
+                        
+                        const rows = table.querySelectorAll('tbody tr');
+                        rows.forEach(row => {
+                            const cells = row.querySelectorAll('td');
+                            const lastCell = cells[cells.length - 1];
+                            if (lastCell) {
+                                lastCell.remove();
+                            }
+                        });
+                    }
+                } else {
+                    rulesContainer.innerHTML = '<div class="alert alert-info">还没有添加任何规则，请先前往<a href="/rules">规则管理</a>页面添加规则。</div>';
+                }
+            })
+            .catch(error => {
+                console.error('获取规则列表时出错:', error);
+                rulesContainer.innerHTML = `<div class="alert alert-danger">获取规则列表失败: ${error.message}</div>`;
+            });
+    });
+</script>
+{% endblock %} 

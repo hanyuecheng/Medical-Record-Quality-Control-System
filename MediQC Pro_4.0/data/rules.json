@@ -1,0 +1,88 @@
+[
+  {
+    "id": "20250606092237",
+    "name": "查缺",
+    "type": "missing",
+    "field": "姓名",
+    "condition": "equals",
+    "value": null,
+    "message": "姓名漏填"
+  },
+  {
+    "id": "20250606093957",
+    "name": "性别与科室不符",
+    "type": "relation",
+    "message": "男士不能有妇产科",
+    "field1": "性别",
+    "field2": "科室",
+    "relation": "not_match",
+    "value_pairs": "男=妇产科"
+  },
+  {
+    "id": "20240501000001",
+    "name": "出院日期早于入院日期检查",
+    "type": "logic",
+    "field": "出院日期",
+    "condition": "greater_than",
+    "value": "入院日期",
+    "message": "出院日期不能早于入院日期"
+  },
+  {
+    "id": "20240606000001",
+    "name": "年龄与科室不符",
+    "type": "relation",
+    "message": "14岁以上患者不应该在儿科就诊",
+    "field1": "年龄",
+    "field2": "科室",
+    "relation": "not_match",
+    "value_pairs": ""
+  },
+  {
+    "id": "20240606000002",
+    "name": "科室与入院诊断不符",
+    "type": "relation",
+    "message": "患者入院诊断与就诊科室不匹配",
+    "field1": "科室",
+    "field2": "入院诊断",
+    "relation": "match_diagnosis",
+    "value_pairs": ""
+  },
+  {
+    "id": "20250607101928",
+    "name": "科室与主要诊断不匹配",
+    "type": "relation",
+    "message": "科室与主要诊断不匹配",
+    "field1": "科室",
+    "field2": "主要诊断",
+    "relation": "match_diagnosis",
+    "value_pairs": ""
+  },
+  {
+    "id": "20250611004252",
+    "name": "证件号码不能为空",
+    "type": "missing",
+    "message": "证件号码漏填",
+    "field": "证件号码",
+    "condition": "equals",
+    "value": null
+  },
+  {
+    "id": "20250611014233",
+    "name": "出院时间早于入院时间",
+    "type": "logic",
+    "message": "出院时间早于入院时间",
+    "field": "出院时间",
+    "condition": "greater_than",
+    "value": "入院时间"
+  },
+  {
+    "id": "20250611014413",
+    "name": "性别与入院科别不符",
+    "type": "relation",
+    "message": "性别与入院科别不符",
+    "field1": "性别",
+    "field2": "入院科别",
+    "relation": "not_match",
+    "value_pairs": "男=妇产科"
+  }
+]

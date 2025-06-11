@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">文本转Excel</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <p>本功能可以将结构化医疗文本转换为Excel格式。请输入格式化的医疗记录文本，系统将自动解析并生成Excel文件。</p>
+                        <p><strong>支持多名患者信息：</strong>请使用<b>空行</b>分隔不同患者的记录。</p>
+                        <p>文本格式示例：</p>
+                        <pre>住院号：12345678
+姓名：张三
+性别：男
+年龄：45
+入院日期：2023-01-15
+出院日期：2023-01-25
+住院天数：10
+科室：内科
+主治医师：李四
+主要诊断：高血压
+
+住院号：23456789
+姓名：李四
+性别：女
+年龄：65
+入院日期：2023-02-01
+出院日期：2023-02-12
+住院天数：11
+科室：心内科
+主治医师：王五
+主要诊断：冠心病</pre>
+                    </div>
+                    
+                    <form action="{{ url_for('process_text_to_excel') }}" method="post">
+                        <div class="mb-3">
+                            <label for="text" class="form-label">医疗记录文本</label>
+                            <textarea class="form-control" id="text" name="text" rows="15" required></textarea>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="button" id="fillExampleBtn" class="btn btn-outline-secondary me-md-2">填充示例文本</button>
+                            <button type="submit" class="btn btn-primary">解析并预览</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 填充示例文本按钮
+    document.getElementById('fillExampleBtn').addEventListener('click', function() {
+        const exampleText = `住院号：12345678
+姓名：张三
+性别：男
+年龄：45
+入院日期：2023-01-15
+出院日期：2023-01-25
+住院天数：10
+科室：内科
+主治医师：李四
+主要诊断：高血压
+
+住院号：23456789
+姓名：李四
+性别：女
+年龄：65
+入院日期：2023-02-01
+出院日期：2023-02-12
+住院天数：11
+科室：心内科
+主治医师：王五
+主要诊断：冠心病`;
+        
+        document.getElementById('text').value = exampleText;
+    });
+});
+</script>
+{% endblock %} 

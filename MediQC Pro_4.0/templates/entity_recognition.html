@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">医学文本实体识别</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <p>请输入医学文本，系统将自动识别其中的医学实体（疾病、症状、检查、治疗、药物等）。</p>
+                </div>
+                
+                <form action="/recognize_entities" method="post">
+                    <div class="mb-3">
+                        <label for="text" class="form-label">医学文本</label>
+                        <textarea class="form-control" id="text" name="text" rows="10" required></textarea>
+                        <div class="mt-2">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="fillExampleText">填充示例文本</button>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">识别实体</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">医学实体字典</h5>
+                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addEntityModal">
+                    添加实体
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="entitiesAccordion">
+                    {% for entity_type, entities in entities.items() %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading{{ entity_type }}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ entity_type }}" aria-expanded="false" aria-controls="collapse{{ entity_type }}">
+                                {{ entity_type }} ({{ entities|length }})
+                            </button>
+                        </h2>
+                        <div id="collapse{{ entity_type }}" class="accordion-collapse collapse" aria-labelledby="heading{{ entity_type }}" data-bs-parent="#entitiesAccordion">
+                            <div class="accordion-body">
+                                <div class="row">
+                                    {% for entity in entities %}
+                                    <div class="col-md-4 mb-2">
+                                        <div class="d-flex justify-content-between align-items-center border rounded p-2">
+                                            <span>{{ entity }}</span>
+                                            <form action="/delete_entity" method="post" class="d-inline">
+                                                <input type="hidden" name="entity_type" value="{{ entity_type }}">
+                                                <input type="hidden" name="entity_name" value="{{ entity }}">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('确定要删除实体 {{ entity }} 吗？')">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 添加实体模态框 -->
+<div class="modal fade" id="addEntityModal" tabindex="-1" aria-labelledby="addEntityModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addEntityModalLabel">添加医学实体</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/add_entity" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="entity_type" class="form-label">实体类型</label>
+                        <input type="text" class="form-control" id="entity_type" name="entity_type" list="entity_types" required>
+                        <datalist id="entity_types">
+                            {% for entity_type in entities.keys() %}
+                            <option value="{{ entity_type }}">
+                            {% endfor %}
+                        </datalist>
+                        <div class="form-text">可以选择现有类型或输入新类型</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="entity_name" class="form-label">实体名称</label>
+                        <input type="text" class="form-control" id="entity_name" name="entity_name" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">添加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+.entity-highlight {
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-weight: bold;
+}
+.疾病, .disease {
+    background-color: #ffcccc;
+    border: 1px solid #ff9999;
+}
+.症状, .symptom {
+    background-color: #ffffcc;
+    border: 1px solid #ffff99;
+}
+.检查, .examination {
+    background-color: #ccffcc;
+    border: 1px solid #99ff99;
+}
+.治疗, .treatment {
+    background-color: #ccccff;
+    border: 1px solid #9999ff;
+}
+.药物, .medicine {
+    background-color: #ffccff;
+    border: 1px solid #ff99ff;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 填充示例文本按钮
+    document.getElementById('fillExampleText').addEventListener('click', function() {
+        const exampleText = `患者，男，45岁。因"反复头痛伴恶心3年，加重2天"入院。患者3年前无明显诱因出现头痛，疼痛位于双侧颞部及枕部，呈持续性胀痛，伴有恶心，无呕吐及视物模糊。曾在当地医院就诊，诊断为"偏头痛"，予以药物治疗（具体不详），症状有所缓解。此后患者间断头痛，未予重视。2天前患者头痛加重，伴有恶心、呕吐，遂来我院就诊，门诊以"偏头痛"收入院。
+
+患者既往体健，否认高血压、糖尿病病史，否认药物过敏史。
+
+查体：T 36.5℃，P 76次/分，R 18次/分，BP 135/85mmHg。神志清楚，精神可，查体合作。心肺腹未见明显异常。神经系统检查：脑膜刺激征阴性，双侧瞳孔等大等圆，直径约3mm，对光反射灵敏，眼球运动正常，无眼球震颤。双侧额纹、鼻唇沟对称，伸舌居中。四肢肌力、肌张力正常，腱反射正常，双侧巴宾斯基征阴性。`;
+        
+        document.getElementById('text').value = exampleText;
+    });
+});
+</script>
+{% endblock %} 
